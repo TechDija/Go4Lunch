@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.RestaurantDetailFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/restaurant_detail_picture"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="@drawable/restaurantgenerique"
+            android:contentDescription="@string/restaurant_picture"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="3dp"
+            android:layout_height="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/restaurant_detail_picture" />
+
+        <View
+            android:id="@+id/orange_band"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:background="@color/orange"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/restaurant_detail_picture" />
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/restaurant_white_circle"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_white_circle"
+            android:contentDescription="@string/going"
+            app:layout_constraintBottom_toBottomOf="@id/restaurant_detail_title"
+            app:layout_constraintStart_toEndOf="@id/view1"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/restaurant_check_picture"
+            android:background="@drawable/orange_check_circle"
+            android:contentDescription="@string/going"
+            app:layout_constraintBottom_toBottomOf="@id/restaurant_white_circle"
+            app:layout_constraintTop_toTopOf="@id/restaurant_white_circle"
+            app:layout_constraintStart_toStartOf="@id/restaurant_white_circle"
+            app:layout_constraintEnd_toEndOf="@id/restaurant_white_circle" />
+
+        <TextView
+            android:id="@+id/restaurant_detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/le_zinc"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/restaurant_detail_picture" />
+
+        <ImageView
+            android:id="@+id/star_score1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/ic_star_rate_24"
+            android:contentDescription="@string/restaurant_note"
+            app:layout_constraintBottom_toBottomOf="@id/restaurant_detail_title"
+            app:layout_constraintStart_toEndOf="@id/restaurant_detail_title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/an_adress"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/restaurant_detail_title" />
+
+        <TextView
+            android:id="@+id/restaurant_detail_call"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/call"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/orange"
+            app:drawableTopCompat="@drawable/phone"
+            app:layout_constraintEnd_toStartOf="@id/restaurant_detail_like"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/orange_band" />
+
+        <TextView
+            android:id="@+id/restaurant_detail_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/like"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/orange"
+            app:drawableTopCompat="@drawable/star_like"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/orange_band" />
+
+        <TextView
+            android:id="@+id/restaurant_detail_website"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/website"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/orange"
+            app:drawableTopCompat="@drawable/website"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/restaurant_detail_like"
+            app:layout_constraintTop_toBottomOf="@id/orange_band" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/restaurant_detail_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/restaurant_detail_like"
+            tools:listitem="@layout/workmate_item" />
+        
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

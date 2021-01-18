@@ -1,0 +1,51 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Go4Lunch</string>
+    <string name="go4lunch">Go4Lunch</string>
+    <string name="sublogo">Find a nice restaurant and invite your co-workers for lunch!</string>
+    <string name="le_zinc">Le ZINC</string>
+    <string name="an_adress">100 rue Félix Dehau</string>
+    <string name="open_until">Open until 10pm</string>
+    <string name="_120m">120m</string>
+    <string name="restaurant_picture">restaurant picture</string>
+    <string name="_2">(2)</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="workmate_sentence">Scarlett is eating at le Zinc</string>
+    <string name="restaurant_note">restaurant_note</string>
+    <string name="call">CALL</string>
+    <string name="like">LIKE</string>
+    <string name="website">WEBSITE</string>
+    <string name="going">going</string>
+    <string name="settings">SETTINGS</string>
+    <string name="enabling_push_notifications_at_noon">enabling PUSH notifications at noon</string>
+    <string name="a_name">John SMITH</string>
+    <string name="an_email_adress">jsmith.1337@gmail.com</string>
+    <string name="your_lunch">YOUR LUNCH</string>
+    <string name="workmates">Workmates</string>
+    <string name="list_view">List View</string>
+    <string name="map_view">Map View</string>
+    <string name="logout">LOGOUT</string>
+    <string name="nav_drawer_open">navigation drawer open</string>
+    <string name="nav_drawer_close">navigation drawer close</string>
+    <string name="authentication_succeeded">authentication succeeded !</string>
+    <string name="authentication_aborted">authentication aborted.</string>
+    <!-- FACEBOOK AND TWITTER PURPOSE -->
+    <string name="facebook_application_id" translatable="false">681317259231092</string>
+    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb681317259231092</string>
+    <string name="twitter_consumer_key" translatable="false">p4tXw8jly5g2TMtZD8Dp8rQL1</string>
+    <string name="twitter_consumer_secret" translatable="false">foKMaBy4ZT0FnuMQKVlFExRXHjzgA9a7i0YqJRIuMC3LfXV8e3</string>
+    <string name="login">LOGIN</string>
+    <string name="write_your_message">write your message</string>
+    <string name="send">Send</string>
+    <string name="empty_chat">This chat is currently empty</string>
+    <string name="chat">Chat</string>
+    <string name="popup_title_permission_file_access">Do you grant access to the pictures of the phone ?</string>
+    <string name="no_image_chosen">no image chosen</string>
+    <string name="bypass_authentication">BYPASS AUTHENTICATION</string>
+    <string name="hasnt_decided_yet"> hasn\'t decided yet</string>
+    <string name="is_eating_at"> is eating at </string>
+    <string name="_is_eating_at_">%sis eating at%s</string>
+    <string name="search">Search</string>
+    <string name="unable_to_get_last_location">Unable to get last location</string>
+    <string name="smth_went_wrong">Something went wrong</string>
+</resources>
