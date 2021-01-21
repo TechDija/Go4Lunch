@@ -59,11 +59,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/restaurant_stars"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/restaurant_picture"
-        app:drawableRightCompat="@drawable/ic_star_rate_24"
-        app:drawableEndCompat="@drawable/ic_star_rate_24"
-        app:drawableStartCompat="@drawable/ic_star_rate_24" />
+        app:drawableRightCompat="@drawable/ic_star_rate_24" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -73,13 +72,5 @@
         app:layout_constraintEnd_toStartOf="@id/restaurant_picture"
         app:layout_constraintTop_toBottomOf="@id/restaurant_distance"
         app:drawableStartCompat="@drawable/ic_baseline_person_outline_24" />
-
-
-
-
-
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,10 +27,11 @@ public class UserRepository {
         String pictureUrl = null;
         MutableLiveData<String> currentUserPictureLiveData = new MutableLiveData<>();
         for (UserInfo userInfo : mFirebaseAuth.getCurrentUser().getProviderData()) {
-            pictureUrl = userInfo.getPhotoUrl().toString();
+            if (userInfo.getPhotoUrl() != null) {
+                pictureUrl = userInfo.getPhotoUrl().toString();
+            }
         }
         currentUserPictureLiveData.setValue(pictureUrl);
-        //currentUserPictureLiveData.setValue(mFirebaseAuth.getCurrentUser().getPhotoUrl());
         return currentUserPictureLiveData;
     }
 
@@ -53,10 +54,12 @@ public class UserRepository {
     public void createUserInFirestore() {
         FirebaseUser firebaseUser = mFirebaseAuth.getCurrentUser();
         if (firebaseUser != null) {
-            String urlPicture = firebaseUser.getPhotoUrl().toString();
-            String username = firebaseUser.getDisplayName();
-            String uid = firebaseUser.getUid();
-            FirestoreUserHelper.createUser(uid, username, "", urlPicture);
+            if (firebaseUser.getPhotoUrl() != null) {
+                String urlPicture = firebaseUser.getPhotoUrl().toString();
+                String username = firebaseUser.getDisplayName();
+                String uid = firebaseUser.getUid();
+                FirestoreUserHelper.createUser(uid, username, "", urlPicture);
+            }
         }
     }
 

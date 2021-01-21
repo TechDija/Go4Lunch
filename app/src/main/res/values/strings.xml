@@ -48,4 +48,9 @@
     <string name="search">Search</string>
     <string name="unable_to_get_last_location">Unable to get last location</string>
     <string name="smth_went_wrong">Something went wrong</string>
+    <string name="currently_open">Currently open</string>
+    <string name="currently_closed">Currently closed</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="I_am_hungry">I\'m hungry!</string>
+    <string name="setting_an_awesome_avatar">Setting an awesome avatar</string>
 </resources>

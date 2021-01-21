@@ -8,19 +8,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/settings"
-            android:layout_marginTop="16dp"
-            android:text="@string/settings"
-            android:textColor="@color/orange"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,11 +19,10 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="10dp"
             android:text="@string/enabling_push_notifications_at_noon"
-            android:textColor="@color/orange"
-            app:layout_constraintTop_toBottomOf="@id/settings"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <ToggleButton
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/enable_push_toggle_button"
@@ -42,6 +31,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBaseline_toBaselineOf="@id/enable_push"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/getting_an_avatartxt"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="25dp"
+            android:text="@string/setting_an_awesome_avatar"
+            app:layout_constraintTop_toBottomOf="@id/enable_push"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/getting_an_avatarbtn"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/enable_push_toggle_button"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

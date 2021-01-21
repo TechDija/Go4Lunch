@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +22,7 @@ import com.dija.go4lunch.R;
 import com.dija.go4lunch.databinding.FragmentMapsBinding;
 import com.dija.go4lunch.injections.Injection;
 import com.dija.go4lunch.injections.MapViewModelFactory;
+import com.dija.go4lunch.models.nearbyAPImodels.Result;
 import com.dija.go4lunch.viewmodel.MapViewModel;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,13 +33,16 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.net.PlacesClient;
 
-import java.util.Objects;
+
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
@@ -57,6 +63,7 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
             } else askPermission();
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
             setActualLocation();
+            setNearByRestaurantMarkers();
         }
     };
 
@@ -70,10 +77,7 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
         }
         configureMapViewModel();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
-        if (!Places.isInitialized()) {
-        Places.initialize(requireContext(), "AIzaSyAOzdywOxstlvYwyVPLwXlGlA42yb6p6uc");}
-        PlacesClient placesClient = Places.createClient(requireContext());
-        mMapViewModel.setPlacesClient(placesClient);
+
     }
 
     @Override
@@ -156,5 +160,27 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
             }
         });
     }
+
+    public void setNearByRestaurantMarkers() {
+        mMapViewModel.getNearBySearchResultsFromLocation(mFusedLocationProviderClient,
+                getContext().getString(R.string.google_api_key)).observe(this, new Observer<List<Result>>() {
+            @Override
+            public void onChanged(List<Result> results) {
+                for (Result result : results) {
+                    LatLng latLng = new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng());
+                    BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.marker_pink);
+                    Bitmap b = bitmapdraw.getBitmap();
+                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(result.getName())
+                            .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                    );
+                }
+            }
+        });
+    }
+
+
     //endregion action
 }

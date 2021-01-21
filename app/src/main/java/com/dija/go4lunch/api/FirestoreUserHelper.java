@@ -68,6 +68,9 @@ public class FirestoreUserHelper {
         return FirestoreUserHelper.getUsersCollection().document(uid).update("lunch", lunch);
     }
 
+    public static Task<Void> updatePhotoUrl(String uid, String photoUrl) {
+        return FirestoreUserHelper.getUsersCollection().document(uid).update("urlPicture", photoUrl);
+    }
     // --- DELETE ---
 
     public static Task<Void> deleteUser(String uid) {
