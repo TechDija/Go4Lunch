@@ -51,8 +51,11 @@ public class WorkmateListFragment extends BaseFragment<FragmentWorkmateListBindi
     }
 
    private void  configureRecyclerView(){
-       mAdapter = new WorkmatesAdapter(generateOptionsForAdapter(FirestoreUserHelper.getAllUsersquery()), Glide.with(this),
-               FirebaseAuth.getInstance().getCurrentUser().getUid(),  this);
+       mAdapter = new WorkmatesAdapter (
+               generateOptionsForAdapter(FirestoreUserHelper.getAllUsersquery()),
+               Glide.with(this),
+               FirebaseAuth.getInstance().getCurrentUser().getUid(),
+               this);
        binding.workmateRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
        binding.workmateRecyclerview.setAdapter(mAdapter);
     }

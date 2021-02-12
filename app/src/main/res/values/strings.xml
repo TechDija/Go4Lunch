@@ -53,4 +53,7 @@
     <string name="something_went_wrong">Something went wrong</string>
     <string name="I_am_hungry">I\'m hungry!</string>
     <string name="setting_an_awesome_avatar">Setting an awesome avatar</string>
+    <string name="enter_your_name_here">enter your name here</string>
+    <string name="update">UPDATE</string>
+    <string name="_is_joining"> is joining !</string>
 </resources>

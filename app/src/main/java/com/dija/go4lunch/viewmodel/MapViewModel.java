@@ -1,9 +1,13 @@
 package com.dija.go4lunch.viewmodel;
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.location.Location;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.dija.go4lunch.models.nearbyAPImodels.Result;
@@ -22,6 +26,11 @@ public class MapViewModel extends ViewModel {
     private final MapRepository mMapRepository;
     private final Executor mExecutor;
     private String queryString;
+
+    private LiveData<Location> lastKnownLocationLiveData = new MutableLiveData<>();
+
+
+    private MutableLiveData<Bitmap> photoLiveData;
 
     public MapViewModel(MapRepository mapRepository, Executor executor) {
         mMapRepository = mapRepository;
@@ -66,13 +75,26 @@ public class MapViewModel extends ViewModel {
         return mMapRepository.getAutocompleteCursor(mFusedLocationProviderClient, key, query);
     }
 
-    public void getQuery(String query){
+    public void getQuery(String query) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mMapRepository.getQuery(query);
             }
         });
+    }
+
+    public LiveData<Location> lastKnownLocation(FusedLocationProviderClient mFusedLocationProviderClient) {
+        return mMapRepository.getLastKnownLocation(mFusedLocationProviderClient);
+
+    }
+
+    public LiveData<String> getPhoneNumber (String placeId, String key ){
+        return mMapRepository.getPhoneNumberOfPlace(placeId, key);
+    }
+
+    public LiveData<String> getWebsite (String placeId, String key ){
+        return mMapRepository.getWebsiteOfPlace(placeId, key);
     }
 
 }

@@ -7,15 +7,13 @@ import com.google.firebase.firestore.Exclude;
 public class User {
     private String uid;
     private String username;
-    private String lunch;
     @Nullable private String urlPicture;
 
     public User() { }
 
-    public User(String uid, String username, String lunch, @Nullable String urlPicture) {
+    public User(String uid, String username, @Nullable String urlPicture) {
         this.uid = uid;
         this.username = username;
-        this.lunch = lunch;
         this.urlPicture = urlPicture;
     }
 
@@ -35,13 +33,6 @@ public class User {
         this.username = userName;
     }
 
-    public String getLunch() {
-        return lunch;
-    }
-
-    public void setLunch(String lunch) {
-        this.lunch = lunch;
-    }
 
     @Nullable
     public String getUrlPicture() {

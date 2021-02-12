@@ -14,6 +14,7 @@ import com.dija.go4lunch.injections.Injection;
 import com.dija.go4lunch.injections.UserViewModelFactory;
 import com.dija.go4lunch.viewmodel.UserViewModel;
 import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.FirebaseApp;
 
 import java.util.Arrays;
 
@@ -26,17 +27,12 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         configureUserViewModel();
         binding.login.setOnClickListener(v ->
                 startSignInActivity());
-        binding.bypass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startMainActivity2();
-            }
-        });
     }
 
     @Override

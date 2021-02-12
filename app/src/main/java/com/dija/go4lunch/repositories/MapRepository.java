@@ -9,15 +9,19 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.dija.go4lunch.models.DetailAPImodel.DetailResults;
 import com.dija.go4lunch.models.autocompleteAPImodels.AutocompleteResult;
 import com.dija.go4lunch.models.autocompleteAPImodels.Prediction;
 import com.dija.go4lunch.models.nearbyAPImodels.PlacesResult;
 import com.dija.go4lunch.models.nearbyAPImodels.Result;
 import com.dija.go4lunch.services.APIClient;
 import com.dija.go4lunch.services.AutocompleteAPI;
+import com.dija.go4lunch.services.DetailAPI;
 import com.dija.go4lunch.services.GoogleMapAPI;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -41,7 +45,7 @@ public class MapRepository {
     private LocationCallback mLocationCallback;
     private final float DEFAULT_ZOOM = 12;
     private List<String> suggestionList = new ArrayList<>();
-    MutableLiveData<Location> lastKnownLocationLiveData = new MutableLiveData<Location>();
+    MutableLiveData<Location> lastKnownLocationLiveData = new MutableLiveData<>();
     private Location deviceLocation;
     private String keyword;
     String currentLocation = "";
@@ -73,8 +77,8 @@ public class MapRepository {
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful()) {
                     Location mLastKnownLocation = task.getResult();
-                    lastKnownLocationLiveData.setValue(mLastKnownLocation);
                     if (mLastKnownLocation != null) {
+                        lastKnownLocationLiveData.postValue(mLastKnownLocation);
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                         currentLocation = mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude();
                     } else {
@@ -159,8 +163,6 @@ public class MapRepository {
         return nearBySearchResultsLiveData;
     }
 
-
-    // WIP for autocomplete queries
     @SuppressLint("MissingPermission")
     public MutableLiveData<Cursor> getAutocompleteCursor(FusedLocationProviderClient mFusedLocationProviderClient, String key, String query) {
         MutableLiveData<Cursor> cursorLiveData = new MutableLiveData<>();
@@ -224,13 +226,96 @@ public class MapRepository {
         return cursorLiveData;
     }
 
-    public void getQuery(String query){
-        if (query != null && query.length()>0){
+    public void getQuery(String query) {
+        if (query != null && query.length() > 0) {
             this.keyword = query;
         }
     }
 
+    @SuppressLint("MissingPermission")
+    public LiveData<Location> getLastKnownLocation(FusedLocationProviderClient mFusedLocationProviderClient) {
+            mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    if (task.isSuccessful()) {
+                        Location mLastKnownLocation = task.getResult();
+                        lastKnownLocationLiveData.postValue(mLastKnownLocation);
+                        if (mLastKnownLocation != null) {
+                            lastKnownLocationLiveData.postValue(mLastKnownLocation);
+                            currentLocation = mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude();
+                        } else {
+                            final LocationRequest locationRequest = LocationRequest.create();
+                            locationRequest.setInterval(10000);
+                            locationRequest.setFastestInterval(5000);
+                            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                            mLocationCallback = new LocationCallback() {
+                                @Override
+                                public void onLocationResult(LocationResult locationResult) {
+                                    super.onLocationResult(locationResult);
+                                    if (locationResult == null) {
+                                        return;
+                                    }
+                                    final Location mLastKnownLocation = locationResult.getLastLocation();
+                                    lastKnownLocationLiveData.postValue(mLastKnownLocation);
+                                    mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+                                }
+                            };
+                            mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
+                            lastKnownLocationLiveData.postValue(mLastKnownLocation);
+                        }
+                    }
+                }
+            });
+        return lastKnownLocationLiveData;
+    }
+
+    public LiveData<String> getPhoneNumberOfPlace(String placeId, String key){
+        MutableLiveData<String> phoneNumberLiveData = new MutableLiveData<>();
+        DetailAPI detailAPI = APIClient.getClient().create(DetailAPI.class);
+        String fields = "formatted_phone_number";
+        detailAPI.getDetails(fields, placeId, key).enqueue(new Callback<DetailResults>() {
+            @Override
+            public void onResponse(Call<DetailResults> call, Response<DetailResults> response) {
+                if(response.isSuccessful()){
+                    String phoneNumber = response.body().getResultAPIDetail().getPhoneNumber();
+                    phoneNumberLiveData.postValue(phoneNumber);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DetailResults> call, Throwable t) {
+                Log.e("TAG", "something went wrong");
+            }
+        });
+        return phoneNumberLiveData;
+    }
+
+    public LiveData<String> getWebsiteOfPlace(String placeId, String key){
+        MutableLiveData<String> websiteLiveData = new MutableLiveData<>();
+        DetailAPI detailAPI = APIClient.getClient().create(DetailAPI.class);
+        String fields = "website";
+        detailAPI.getDetails(fields, placeId, key).enqueue(new Callback<DetailResults>() {
+            @Override
+            public void onResponse(Call<DetailResults> call, Response<DetailResults> response) {
+                if(response.isSuccessful()){
+                    String website = response.body().getResultAPIDetail().getWebsite();
+                    websiteLiveData.postValue(website);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DetailResults> call, Throwable t) {
+                Log.e("TAG", "something went wrong");
+            }
+        });
+        return websiteLiveData;
+    }
 }
+
+
+
+
+
 
 
 

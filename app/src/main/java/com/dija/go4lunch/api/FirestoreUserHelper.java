@@ -27,9 +27,9 @@ public class FirestoreUserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String username, String lunch, String urlPicture) {
+    public static Task<Void> createUser(String uid, String username, String urlPicture) {
         // create User object
-        User userToCreate = new User(uid, username, lunch, urlPicture);
+        User userToCreate = new User(uid, username, urlPicture);
         // add a new User Document to Firestore
         Task<Void> createUser = FirestoreUserHelper.getUsersCollection().document(uid).set(userToCreate);
         return createUser.addOnFailureListener(new OnFailureListener() {
@@ -51,8 +51,8 @@ public class FirestoreUserHelper {
 
     public static Query getAllUsersquery(){
         return FirestoreUserHelper
-                .getUsersCollection()
-                .orderBy("lunch", Query.Direction.DESCENDING);
+                .getUsersCollection();
+               // .orderBy("lunch", Query.Direction.DESCENDING);
     }
     public static Task<DocumentSnapshot> getUser(String uid) {
         return FirestoreUserHelper.getUsersCollection().document(uid).get();

@@ -9,12 +9,15 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -46,6 +49,7 @@ import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
+import static android.view.View.GONE;
 
 public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
 
@@ -77,8 +81,9 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
         }
         configureMapViewModel();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
-
+        binding.progressBar.setVisibility(GONE);
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -180,6 +185,7 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
             }
         });
     }
+
 
 
     //endregion action

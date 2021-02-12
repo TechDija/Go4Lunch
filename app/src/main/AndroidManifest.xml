@@ -43,8 +43,10 @@
         <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="https"
+                    android:host="go4lunch-e7b77.firebaseapp.com" />
+
             </intent-filter>
         </activity>
     </application>

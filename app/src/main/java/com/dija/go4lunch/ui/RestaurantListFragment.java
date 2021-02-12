@@ -1,5 +1,6 @@
 package com.dija.go4lunch.ui;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 
@@ -22,6 +23,7 @@ import com.dija.go4lunch.viewmodel.MapViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class RestaurantListFragment extends BaseFragment<FragmentRestaurantListB
     private MapViewModel mMapViewModel;
     private List<Result> results = new ArrayList<>();
     private FusedLocationProviderClient mFusedLocationProviderClient;
-
+    private Location lastKnownLocation;
 
     public RestaurantListFragment() {
     }
@@ -50,9 +52,12 @@ public class RestaurantListFragment extends BaseFragment<FragmentRestaurantListB
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
         configureMapViewModel();
-        configureRecyclerView();
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
+        initializeLastKnownLocation();
+        //configureRecyclerView();
         configureOnClickRecyclerView();
         super.onViewCreated(view, savedInstanceState);
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     private void configureMapViewModel() {
@@ -65,7 +70,7 @@ public class RestaurantListFragment extends BaseFragment<FragmentRestaurantListB
                 .getString(R.string.google_api_key)).observe(getViewLifecycleOwner(), new Observer<List<Result>>() {
             @Override
             public void onChanged(List<Result> results) {
-                mAdapter = new RestaurantListAdapter(results);
+                mAdapter = new RestaurantListAdapter(results, lastKnownLocation);
                 binding.restaurantList.setAdapter(mAdapter);
                 binding.restaurantList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
             }
@@ -77,22 +82,38 @@ public class RestaurantListFragment extends BaseFragment<FragmentRestaurantListB
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Result result = results.get(position);
-                        RestaurantDetailFragment restaurantDetailFragment = new RestaurantDetailFragment();
-                        getParentFragmentManager().beginTransaction()
-                                .replace(R.id.container, restaurantDetailFragment)
-                                .addToBackStack(RestaurantListFragment.class.getSimpleName())
-                                .commit();
-                        Bundle bundle = new Bundle();
-                        bundle.putString("name", result.getName());
-                        bundle.putString("photoUrl", result.getPhotos().get(0).getPhotoReference());
-                        restaurantDetailFragment.setArguments(bundle);
+                        mMapViewModel.getNearBySearchResultsFromLocation(mFusedLocationProviderClient, getContext()
+                                .getString(R.string.google_api_key)).observe(getViewLifecycleOwner(), new Observer<List<Result>>() {
+                            @Override
+                            public void onChanged(List<Result> results) {
+                                Result result = results.get(position);
+                                RestaurantDetailFragment restaurantDetailFragment = new RestaurantDetailFragment();
+                                getParentFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_container, restaurantDetailFragment)
+                                        .addToBackStack(RestaurantListFragment.class.getSimpleName())
+                                        .commit();
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("result", result);
+                                restaurantDetailFragment.setArguments(bundle);
+
+                                  }
+                        });
+
 
                     }
                 });
 
     }
 
+    private void initializeLastKnownLocation(){
+    mMapViewModel.lastKnownLocation(mFusedLocationProviderClient).observe(getViewLifecycleOwner(), new Observer<Location>() {
+        @Override
+        public void onChanged(Location location) {
+            lastKnownLocation = location;
+            configureRecyclerView();
+        }
+    });
+    }
 
 
 }

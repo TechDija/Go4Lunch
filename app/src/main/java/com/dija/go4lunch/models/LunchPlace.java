@@ -7,17 +7,14 @@ import java.util.List;
 public class LunchPlace {
 
     private String resultId;
-    private List<String> usersId;
-    private Result result;
-    private User user;
-
+    private String userId;
 
     public LunchPlace() {
     }
 
-    public LunchPlace(String resultId, List<String> usersId) {
+    public LunchPlace(String resultId, String userId) {
         resultId = resultId;
-        usersId = usersId;
+        userId = userId;
     }
 
     public String getResultId() {
@@ -28,26 +25,12 @@ public class LunchPlace {
         resultId = resultId;
     }
 
-    public List<String> getUsersId() {
-        return usersId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUsersId(List<String> usersId) {
-        usersId = usersId;
-    }
-
-    public User getUserById(String id){
-        if (user.getUid().equals(id)){
-            return user;
-        }
-        return null;
-    }
-
-    public Result getResultById(String id){
-        if (result.getId().equals(id)){
-            return result;
-        }
-        return null;
+    public void setUserId(String userId) {
+        userId = userId;
     }
 
 

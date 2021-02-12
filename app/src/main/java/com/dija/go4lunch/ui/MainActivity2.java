@@ -2,6 +2,7 @@ package com.dija.go4lunch.ui;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -9,12 +10,14 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.GravityCompat;
@@ -57,6 +60,8 @@ public class MainActivity2 extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setProgressBarIndeterminateVisibility(true);
         super.onCreate(savedInstanceState);
         binding = ActivityMain2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -87,13 +92,7 @@ public class MainActivity2 extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mMapViewModel.getQuery(query);
-                Fragment restaurantList = new RestaurantListFragment();
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment_container, restaurantList); // f1_container is your FrameLayout container
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                ft.addToBackStack(null);
-                ft.commit();
+                //get Restaurant Detail fragment
                 return true;
             }
 
@@ -173,6 +172,7 @@ public class MainActivity2 extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle(R.string.I_am_hungry);
+
     }
 
     private void configureNavigation() {
@@ -187,6 +187,7 @@ public class MainActivity2 extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navigationView, navController);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
+      //  setProgressBarIndeterminateVisibility(false);
         //configuring drawer nav
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.navigationLayout,
                 binding.toolbar, R.string.nav_drawer_open, R.string.nav_drawer_close);
@@ -230,9 +231,26 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     private void logout() {
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnSuccessListener(this, this.updateUIOnRequestCompleted(SIGN_OUT_TASK));
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle("Log out");
+        alertDialog.setMessage("Do you want to log out ?");
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "No",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.setButton(alertDialog.BUTTON_POSITIVE, "Yes",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AuthUI.getInstance()
+                                .signOut(MainActivity2.this)
+                                .addOnSuccessListener(MainActivity2.this, MainActivity2.this.updateUIOnRequestCompleted(SIGN_OUT_TASK));
+                    }
+                });
+        alertDialog.show();
+
     }
 
     private OnSuccessListener<Void> updateUIOnRequestCompleted(final int origin) {
