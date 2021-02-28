@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
@@ -12,9 +14,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.dija.go4lunch.R;
 import com.dija.go4lunch.databinding.WorkmateItemBinding;
 import com.dija.go4lunch.models.User;
+import com.dija.go4lunch.viewmodel.UserViewModel;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
+import static com.dija.go4lunch.R.color.black;
 import static com.dija.go4lunch.R.color.grey;
 
 public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesAdapter.WorkmatesViewHolder> {
@@ -25,12 +29,16 @@ public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesAd
     private final RequestManager glide;
     private final String idCurrentUser;
     private WorkmatesAdapter.Listener callback;
+    private UserViewModel mUserViewModel;
 
-    public WorkmatesAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide, String idCurrentUser, WorkmatesAdapter.Listener callback) {
+
+    public WorkmatesAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide,
+                            String idCurrentUser, WorkmatesAdapter.Listener callback, UserViewModel mUserViewModel) {
         super(options);
         this.glide = glide;
         this.idCurrentUser = idCurrentUser;
         this.callback = callback;
+        this.mUserViewModel = mUserViewModel;
     }
 
     @NonNull
@@ -74,13 +82,21 @@ public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesAd
             binding.workmateSentence.setTextColor(itemView.getContext().getResources().getColor(grey));
             binding.workmateSentence.setTextSize(18);
 
-           /* if (!user.getLunch().equals("")){
-                String sentence = String.format(itemView.getContext().getString(R.string._is_eating_at_),user.getUserName() + " ", " "+ user.getLunch());
-                binding.workmateSentence.setText(sentence);
-                binding.workmateSentence.setTextColor(itemView.getContext().getResources().getColor(black));
-                binding.workmateSentence.setTextSize(20);
-            } else {
-                **/
+            // get Lunchplace name
+            if (user.getUid() != null) {
+                mUserViewModel.getLunchPlaceName(user.getUid()).observe((LifecycleOwner) itemView.getContext(), new Observer<String>() {
+                    @Override
+                    public void onChanged(String s) {
+                        if (s != null && s != "") {
+                            String sentence = String.format(itemView.getContext().getString(R.string._is_eating_at_), user.getUserName() + " ", " " + s);
+                            binding.workmateSentence.setText(sentence);
+                            binding.workmateSentence.setTextColor(itemView.getContext().getResources().getColor(black));
+                            binding.workmateSentence.setTextSize(20);
+                        }
+                    }
+                });
+            }
+
         }
     }
 }

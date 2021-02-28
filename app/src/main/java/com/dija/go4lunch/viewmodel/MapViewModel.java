@@ -97,6 +97,14 @@ public class MapViewModel extends ViewModel {
         return mMapRepository.getWebsiteOfPlace(placeId, key);
     }
 
+    public LiveData<Boolean> isRestaurantInLunchplaces(String restaurantId){
+        return mMapRepository.isRestaurantInLunchplaces(restaurantId);
+    }
+
+    public LiveData<Integer> getNumberOfWorkmates (String restaurantId){
+        return mMapRepository.getNumberOfWorkmates(restaurantId);
+    }
+
 }
 
 

@@ -9,6 +9,7 @@ import com.dija.go4lunch.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,12 +33,14 @@ public class FirestoreLunchplaceHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createLunchPlace(String resultId, String userId) {
-        LunchPlace lunchPlaceToCreate = new LunchPlace(resultId, userId);
+    public static Task<Void> createLunchPlace(String resultId, String userId, String resultName, String resultAdress) {
+        //LunchPlace lunchPlaceToCreate = new LunchPlace(resultId, userId, resultName, resultAdress);
         HashMap<String, Object> map = new HashMap<>();
         if (resultId != null && userId !=null) {
             map.put("resultId", resultId);
             map.put("userId", userId);
+            map.put("lunchplaceName", resultName);
+            map.put("lunchplaceAdress", resultAdress);
         }
         Task<Void> createLunchPlace = FirestoreLunchplaceHelper.getLunchPlacesCollection().document(userId).set(map);
         return createLunchPlace.addOnFailureListener(new OnFailureListener() {
@@ -57,26 +60,24 @@ public class FirestoreLunchplaceHelper {
                 .get();
     }
 
-    public static Task<DocumentSnapshot> getLunchPlace(String resultId) {
+    public static Task<DocumentSnapshot> getLunchPlace(String userId) {
+        if (FirestoreLunchplaceHelper.getLunchPlacesCollection().document(userId) != null) {
+            return FirestoreLunchplaceHelper.getLunchPlacesCollection().document(userId).get();
+        } else {
+            return null;
+        }
+    }
+
+    public static DocumentReference getLunchPlaceDocRef(String resultId) {
         if (FirestoreLunchplaceHelper.getLunchPlacesCollection().document(resultId) != null) {
-            return FirestoreLunchplaceHelper.getLunchPlacesCollection().document(resultId).get();
+            return FirestoreLunchplaceHelper.getLunchPlacesCollection().document(resultId);
         } else {
             return null;
         }
     }
 
     // --- UPDATE ---
-/*
-    public static Task<Void> addALuncherToLunchPlaceUsers(String resultId, String newLuncherId) {
-        return FirestoreLunchplaceHelper.getLunchPlacesCollection().document(resultId)
-                .update("usersId", FieldValue.arrayUnion(newLuncherId));
-    }
 
-    public static Task<Void> RemoveALuncherFromLunchPlaceUsers(String resultId, String LuncherId) {
-        return FirestoreLunchplaceHelper.getLunchPlacesCollection().document(resultId)
-                .update("usersId", FieldValue.arrayRemove(LuncherId));
-    }
-**/
     // --- DELETE ---
 
 

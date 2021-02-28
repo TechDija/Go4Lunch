@@ -8,6 +8,7 @@ import com.dija.go4lunch.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -27,9 +28,9 @@ public class FirestoreUserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String username, String urlPicture) {
+    public static Task<Void> createUser(String uid, String username, String urlPicture, String token) {
         // create User object
-        User userToCreate = new User(uid, username, urlPicture);
+        User userToCreate = new User(uid, username, urlPicture, token);
         // add a new User Document to Firestore
         Task<Void> createUser = FirestoreUserHelper.getUsersCollection().document(uid).set(userToCreate);
         return createUser.addOnFailureListener(new OnFailureListener() {
@@ -56,6 +57,9 @@ public class FirestoreUserHelper {
     }
     public static Task<DocumentSnapshot> getUser(String uid) {
         return FirestoreUserHelper.getUsersCollection().document(uid).get();
+    }
+    public static DocumentReference getUserDocumentReference(String uid){
+        return FirestoreUserHelper.getUsersCollection().document(uid);
     }
 
     // --- UPDATE ---

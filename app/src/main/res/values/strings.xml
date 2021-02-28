@@ -56,4 +56,7 @@
     <string name="enter_your_name_here">enter your name here</string>
     <string name="update">UPDATE</string>
     <string name="_is_joining"> is joining !</string>
+    <string name="notification_title">Go 4 Lunch !</string>
+    <string name="default_notification_channel_id">123</string>
+    <string name="is_waiting_notification">is waiting!</string>
 </resources>

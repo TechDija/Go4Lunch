@@ -68,6 +68,7 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
             setActualLocation();
             setNearByRestaurantMarkers();
+
         }
     };
 
@@ -171,16 +172,52 @@ public class MapsFragment extends BaseFragment<FragmentMapsBinding> {
                 getContext().getString(R.string.google_api_key)).observe(this, new Observer<List<Result>>() {
             @Override
             public void onChanged(List<Result> results) {
+                mMap.clear();
                 for (Result result : results) {
-                    LatLng latLng = new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng());
-                    BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.marker_pink);
-                    Bitmap b = bitmapdraw.getBitmap();
-                    Bitmap smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(result.getName())
-                            .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                    );
+                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
+                            RestaurantDetailFragment restaurantDetailFragment = new RestaurantDetailFragment();
+                            getParentFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container, restaurantDetailFragment)
+                                    .addToBackStack(MapsFragment.class.getSimpleName())
+                                    .commit();
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("result", result);
+                            restaurantDetailFragment.setArguments(bundle);
+                        }
+                    });
+
+                    mMapViewModel.isRestaurantInLunchplaces(result.getPlaceId()).observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+                        @Override
+                        public void onChanged(Boolean aBoolean) {
+                            if (aBoolean){
+                                LatLng latLng1 = new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng());
+                                BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.marker_green);
+                                Bitmap b = bitmapdraw.getBitmap();
+                                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
+                                Marker marker = mMap.addMarker(new MarkerOptions()
+                                        .position(latLng1)
+                                        .title(result.getName())
+                                        .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                );
+
+                            } else {
+                                LatLng latLng = new LatLng(result.getGeometry().getLocation().getLat(), result.getGeometry().getLocation().getLng());
+                                BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.marker_pink);
+                                Bitmap b = bitmapdraw.getBitmap();
+                                Bitmap smallMarker = Bitmap.createScaledBitmap(b, 50, 50, false);
+                                Marker marker = mMap.addMarker(new MarkerOptions()
+                                        .position(latLng)
+                                        .title(result.getName())
+                                        .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
+
+                            }
+
+
+                        }
+                    });
+
                 }
             }
         });

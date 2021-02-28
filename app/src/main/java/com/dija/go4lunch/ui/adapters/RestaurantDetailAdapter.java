@@ -13,6 +13,7 @@ import com.dija.go4lunch.R;
 import com.dija.go4lunch.databinding.WorkmateItemBinding;
 import com.dija.go4lunch.models.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.dija.go4lunch.R.color.black;
@@ -21,7 +22,7 @@ import static com.dija.go4lunch.R.color.black;
 public class RestaurantDetailAdapter extends RecyclerView.Adapter<RestaurantDetailAdapter.RestaurantDetailViewHolder> {
 
     private final RequestManager glide;
-    private List<User> users;
+    private List<User> users = null;
 
     public RestaurantDetailAdapter(RequestManager glide, List<User> users) {
         this.glide = glide;
@@ -60,7 +61,12 @@ public class RestaurantDetailAdapter extends RecyclerView.Adapter<RestaurantDeta
                 glide.load(user.getUrlPicture())
                         .apply(RequestOptions.circleCropTransform())
                         .into(binding.workmatePortrait);
+            } else {
+                glide.load(R.drawable.fallout_avatar)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(binding.workmatePortrait);
             }
+
             String sentence = user.getUserName() + " " + itemView.getContext().getString(R.string._is_joining);
             binding.workmateSentence.setText(sentence);
             binding.workmateSentence.setTextColor(itemView.getContext().getResources().getColor(black));

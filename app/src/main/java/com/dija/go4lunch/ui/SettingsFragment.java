@@ -1,5 +1,6 @@
 package com.dija.go4lunch.ui;
 
+import android.app.ActionBar;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment;
 
 import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -31,14 +33,6 @@ import java.util.Random;
  */
 public class SettingsFragment extends BaseFragment<FragmentSettingsBinding> {
 
-    String[] photoUrls = new String[]{"https://fr.web.img4.acsta.net/pictures/19/05/22/10/29/0914375.jpg",
-            "https://upload.wikimedia.org/wikipedia/commons/a/ad/Angelina_Jolie_2_June_2014_%28cropped%29.jpg",
-            "https://img.discogs.com/qXvuTkdyjRztoOxb3XNOPG9QjrI=/fit-in/300x300/filters:strip_icc():format(jpeg):mode_rgb():quality(40)/discogs-images/A-843707-1588467681-7412.png.jpg",
-            "https://media.senscritique.com/media/000007398942/150_200/Godfrey_Quigley.jpg",
-            "https://voi.img.pmdstatic.net/fit/http.3A.2F.2Fprd2-bone-image.2Es3-website-eu-west-1.2Eamazonaws.2Ecom.2Fvoi.2F2020.2F02.2F11.2F74f16c5c-7c10-4b2b-9188-c95ea7901465.2Ejpeg/2048x1152/quality/80/scarlett-johansson-le-prix-impressionnant-de-ses-boucles-d-oreilles-lors-des-oscars.jpeg",
-            "https://www.avcesar.com/source/actualites/00/00/7C/7E/henry-cavill-tient-bond-la-route_09005715.jpg",
-            "https://www.nautiljon.com/images/people/00/69/nana_after_school_19796.jpg"
-    };
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -52,71 +46,31 @@ public class SettingsFragment extends BaseFragment<FragmentSettingsBinding> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.updateBtn.setOnClickListener(new View.OnClickListener() {
+        binding.radiusSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = binding.nameTextEditText.getText().toString();
-                updateProfileOfWorkmates(name);
+                radiusDefinition();
             }
         });
     }
 
-    private void updateProfileOfWorkmates(String name ){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        switch (name){
-            case ("Michelle"):
-                setAvatarAndName("Michelle", "https://fr.web.img4.acsta.net/pictures/19/05/22/10/29/0914375.jpg");
-                break;
-            case("Angelina"):
-                setAvatarAndName("Angelina", "https://upload.wikimedia.org/wikipedia/commons/a/ad/Angelina_Jolie_2_June_2014_%28cropped%29.jpg");
-                break;
-            case("Hugh"):
-                setAvatarAndName("Hugh", "https://img.discogs.com/qXvuTkdyjRztoOxb3XNOPG9QjrI=/fit-in/300x300/filters:strip_icc():format(jpeg):mode_rgb():quality(40)/discogs-images/A-843707-1588467681-7412.png.jpg");
-                break;
-            case("Godfrey"):
-                setAvatarAndName("Godfrey", "https://media.senscritique.com/media/000007398942/150_200/Godfrey_Quigley.jpg");
-                break;
-            case("Scarlett"):
-                setAvatarAndName("Scarlett", "https://voi.img.pmdstatic.net/fit/http.3A.2F.2Fprd2-bone-image.2Es3-website-eu-west-1.2Eamazonaws.2Ecom.2Fvoi.2F2020.2F02.2F11.2F74f16c5c-7c10-4b2b-9188-c95ea7901465.2Ejpeg/2048x1152/quality/80/scarlett-johansson-le-prix-impressionnant-de-ses-boucles-d-oreilles-lors-des-oscars.jpeg");
-                break;
-            case("Henry"):
-                setAvatarAndName("Henry", "https://www.avcesar.com/source/actualites/00/00/7C/7E/henry-cavill-tient-bond-la-route_09005715.jpg");
-                break;
-            case("Nana"):
-                setAvatarAndName("Nana", "https://www.nautiljon.com/images/people/00/69/nana_after_school_19796.jpg");
-                break;
-            default:
-        }
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_search).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 
-
-    private void setAvatarAndName(String name, String photoUrl){
-        if (name.length()>1) {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                    .setDisplayName(name)
-                    .setPhotoUri(Uri.parse(photoUrl))
-                    .build();
-            user.updateProfile(profileUpdates)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(getContext(), "User profile updated", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-        } else {
-            Toast.makeText(getContext(), "Set a valid name and retry", Toast.LENGTH_LONG).show();
-        }
-
+    private void radiusDefinition(){
+        RadiusDialogFragment dialog = new RadiusDialogFragment();
+        dialog.show(this.getFragmentManager(), "Radius Dialog");
     }
+
 
 
 }

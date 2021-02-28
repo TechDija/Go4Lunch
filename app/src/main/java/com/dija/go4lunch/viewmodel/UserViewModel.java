@@ -1,19 +1,16 @@
 package com.dija.go4lunch.viewmodel;
 
-import androidx.annotation.NonNull;
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.dija.go4lunch.api.FirestoreUserHelper;
 import com.dija.go4lunch.models.User;
+import com.dija.go4lunch.models.nearbyAPImodels.Result;
 import com.dija.go4lunch.repositories.UserRepository;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -56,26 +53,34 @@ public class UserViewModel extends ViewModel {
         return mUserRepository.getIsLunchPlaceLiveData(restaurantId);
     }
 
-    public void updateLunchplaceInFirestore(String restaurantId) {
-        if (mUserRepository.getIsLunchPlaceLiveData(restaurantId).getValue()) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mUserRepository.deleteLunchplaceFromFirestore();
-                }
-            });
-        } else {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mUserRepository.updateLunchplaceInFirestore(restaurantId);
-                }
-            });
-        }
+    public void updateLunchplaceInFirestore(String restaurantId, String restaurantName, String restaurantAdress) {
+   mExecutor.execute(new Runnable() {
+       @Override
+       public void run() {
+           mUserRepository.updateOrDeleteLunchplaceInFirestore(restaurantId, restaurantName, restaurantAdress);
+       }
+   });
     }
 
     public MutableLiveData<List<User>> getUsersFromLunchPlace(String restaurantId){
-     return mUserRepository.getUserIdFromLunchPlace(restaurantId);
+     return mUserRepository.getUserIdFromLunchPlaceListened(restaurantId);
+    }
+
+    public MutableLiveData<String> getLunchPlaceName(String userId){
+        return mUserRepository.getLunchplaceName(userId);
+
+    }
+
+    public void saveLunchplaceLocally(Context context, Result result){
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mUserRepository.saveLunchplaceLocally(context, result);
+            }
+        });
+    }
+    public Result retrieveUsersLunchplace(Context context){
+        return mUserRepository.retrieveUsersLunchplace(context);
     }
 
 

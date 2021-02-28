@@ -5,6 +5,7 @@
     android:id="@+id/navigation"
     app:startDestination="@id/navigation_mapview">
 
+
     <fragment
         android:id="@+id/navigation_mapview"
         android:name="com.dija.go4lunch.ui.MapsFragment"

@@ -1,8 +1,9 @@
 package com.dija.go4lunch.ui;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -12,11 +13,14 @@ import com.dija.go4lunch.R;
 import com.dija.go4lunch.databinding.ActivityMainBinding;
 import com.dija.go4lunch.injections.Injection;
 import com.dija.go4lunch.injections.UserViewModelFactory;
+import com.dija.go4lunch.notifications.NotificationReceiver;
 import com.dija.go4lunch.viewmodel.UserViewModel;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.FirebaseApp;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
 
@@ -31,8 +35,28 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         configureUserViewModel();
+        myAlarm();
         binding.login.setOnClickListener(v ->
                 startSignInActivity());
+        }
+
+//TODO in MainActivity2
+    private void myAlarm() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        if (calendar.getTime().compareTo(new Date())<0)
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+        Intent intent = new Intent(getApplicationContext(), NotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager= (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        if (alarmManager != null) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
     }
 
     @Override

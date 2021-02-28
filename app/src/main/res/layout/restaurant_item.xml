@@ -57,19 +57,38 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/restaurant_picture"/>
 
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/restaurant_stars"
+        android:id="@+id/restaurant_star1"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/ic_star_rate_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/restaurant_picture"
-        app:drawableRightCompat="@drawable/ic_star_rate_24" />
+        app:layout_constraintEnd_toStartOf="@id/restaurant_picture" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/restaurant_star2"
+
+        android:background="@drawable/ic_star_rate_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/restaurant_star1" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/restaurant_star3"
+        android:background="@drawable/ic_star_rate_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/restaurant_star2" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/person_outlined_text"
         android:text="@string/_2"
+        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toStartOf="@id/restaurant_picture"
         app:layout_constraintTop_toBottomOf="@id/restaurant_distance"
         app:drawableStartCompat="@drawable/ic_baseline_person_outline_24" />

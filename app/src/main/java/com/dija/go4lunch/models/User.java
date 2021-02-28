@@ -8,13 +8,15 @@ public class User {
     private String uid;
     private String username;
     @Nullable private String urlPicture;
+    private String token;
 
     public User() { }
 
-    public User(String uid, String username, @Nullable String urlPicture) {
+    public User(String uid, String username, @Nullable String urlPicture, String token) {
         this.uid = uid;
         this.username = username;
         this.urlPicture = urlPicture;
+        this.token = token;
     }
 
     public String getUid() {
@@ -41,5 +43,13 @@ public class User {
 
     public void setUrlPicture(@Nullable String urlPicture) {
         this.urlPicture = urlPicture;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

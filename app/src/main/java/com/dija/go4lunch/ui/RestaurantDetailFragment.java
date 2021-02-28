@@ -1,8 +1,10 @@
 package com.dija.go4lunch.ui;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -13,9 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.dija.go4lunch.R;
-import com.dija.go4lunch.api.FirestoreUserHelper;
 import com.dija.go4lunch.databinding.FragmentRestaurantDetailBinding;
 import com.dija.go4lunch.injections.Injection;
 import com.dija.go4lunch.injections.MapViewModelFactory;
@@ -23,10 +23,8 @@ import com.dija.go4lunch.injections.UserViewModelFactory;
 import com.dija.go4lunch.models.User;
 import com.dija.go4lunch.models.nearbyAPImodels.Result;
 import com.dija.go4lunch.ui.adapters.RestaurantDetailAdapter;
-import com.dija.go4lunch.ui.adapters.WorkmatesAdapter;
 import com.dija.go4lunch.viewmodel.MapViewModel;
 import com.dija.go4lunch.viewmodel.UserViewModel;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -57,7 +55,7 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
         result = (Result) bundle.getSerializable("result");
         configureUserViewModel();
         configureMapViewModel();
-
+        configureToolbar();
     }
 
     @Override
@@ -68,11 +66,16 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
         setPhoto();
         setCheckButton();
         configureRecyclerView();
+        setRateStars();
         binding.restaurantCheckPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mUserViewModel.updateLunchplaceInFirestore(result.getPlaceId());
+                mUserViewModel.updateLunchplaceInFirestore(result.getPlaceId(), result.getName(), result.getVicinity());
+                mUserViewModel.saveLunchplaceLocally(getContext(), result);
                 updateCheckButton();
+                if (mAdapter != null) {
+                    mAdapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -91,6 +94,12 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
         });
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_search).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
+    }
+
     private void configureUserViewModel() {
         UserViewModelFactory mUserViewModelFactory = Injection.provideUserViewModelFactory(getContext());
         this.mUserViewModel = new ViewModelProvider(this, mUserViewModelFactory).get(UserViewModel.class);
@@ -106,9 +115,9 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
-                    binding.restaurantCheckPicture.setImageResource(R.drawable.green_check_circle);
+                    binding.restaurantCheckPicture.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.pastel_green)));
                 } else {
-                    binding.restaurantCheckPicture.setImageResource(R.drawable.orange_check_circle);
+                    binding.restaurantCheckPicture.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.orange)));
                 }
             }
         });
@@ -119,13 +128,12 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean) {
-                    binding.restaurantCheckPicture.setImageResource(R.drawable.orange_check_circle);
+                    binding.restaurantCheckPicture.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.orange)));
                 } else {
-                    binding.restaurantCheckPicture.setImageResource(R.drawable.green_check_circle);
+                    binding.restaurantCheckPicture.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.pastel_green)));
                 }
             }
         });
-
     }
 
     private void setPhoto() {
@@ -141,19 +149,19 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
         }
     }
 
-    private void getPhoneNumber(){
+    private void getPhoneNumber() {
         String key = getContext().getString(R.string.google_api_key);
         mMapViewModel.getPhoneNumber(result.getPlaceId(), key).observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String s) {
                 Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:"+ s));
+                intent.setData(Uri.parse("tel:" + s));
                 startActivity(intent);
             }
         });
     }
 
-    private void getWebsite(){
+    private void getWebsite() {
         String key = getContext().getString(R.string.google_api_key);
         mMapViewModel.getWebsite(result.getPlaceId(), key).observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
@@ -164,7 +172,8 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
         });
     }
 
-    private void configureRecyclerView(){
+    private void configureRecyclerView() {
+
         mUserViewModel.getUsersFromLunchPlace(result.getPlaceId()).observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> users) {
@@ -173,7 +182,23 @@ public class RestaurantDetailFragment extends BaseFragment<FragmentRestaurantDet
                 binding.restaurantDetailRecyclerview.setAdapter(mAdapter);
             }
         });
+    }
 
+    private void setRateStars() {
+        if (result.getRating() != null && result.getRating() < 3.0f) {
+            binding.starScore2.setVisibility(View.INVISIBLE);
+            binding.starScore3.setVisibility(View.INVISIBLE);
+        } else if (result.getRating() != null && result.getRating() < 4.2f && result.getRating() >= 3.0f) {
+            binding.starScore3.setVisibility(View.INVISIBLE);
+        } else if (result.getRating() == null) {
+            binding.starScore1.setVisibility(View.INVISIBLE);
+            binding.starScore2.setVisibility(View.INVISIBLE);
+            binding.starScore3.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void configureToolbar() {
+        setHasOptionsMenu(true);
     }
 
 }

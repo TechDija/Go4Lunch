@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.dija.go4lunch.api.FirestoreLunchplaceHelper;
+import com.dija.go4lunch.api.FirestoreSettingsHelper;
 import com.dija.go4lunch.models.DetailAPImodel.DetailResults;
 import com.dija.go4lunch.models.autocompleteAPImodels.AutocompleteResult;
 import com.dija.go4lunch.models.autocompleteAPImodels.Prediction;
@@ -31,7 +33,11 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +55,7 @@ public class MapRepository {
     private Location deviceLocation;
     private String keyword;
     String currentLocation = "";
+    //récupérer la clé dans la factory
     private static final String[] sAutocompleteColNames = new String[]{
             BaseColumns._ID,                         // necessary for adapter
             SearchManager.SUGGEST_COLUMN_TEXT_1      // the full search term
@@ -110,56 +117,63 @@ public class MapRepository {
     @SuppressLint("MissingPermission")
     public MutableLiveData<List<Result>> getNearBySearchResultsFromLocation(FusedLocationProviderClient mFusedLocationProviderClient, String key) {
         MutableLiveData<List<Result>> nearBySearchResultsLiveData = new MutableLiveData<>();
-        int radius = 5000;
-        String type = "restaurant";
-        keyword = ""; // obtaining the search from
-        GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
-        mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    Location mLastKnownLocation = task.getResult();
-                    if (mLastKnownLocation != null) {
-                        currentLocation = mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude();
-                        googleMapAPI.getNearBy(currentLocation, radius, type, keyword, key)
-                                .enqueue(new Callback<PlacesResult>() {
-                                    @Override
-                                    public void onResponse(Call<PlacesResult> call, Response<PlacesResult> response) {
-                                        if (response.isSuccessful()) {
-                                            List<Result> results = response.body().getResults();
-                                            nearBySearchResultsLiveData.setValue(results);
-                                        } else {
-                                            Log.e("TAG", "something went wrong");
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<PlacesResult> call, Throwable t) {
-                                        Log.e("TAG", "something went wrong");
-                                    }
-                                });
-                    } else {
-                        final LocationRequest locationRequest = LocationRequest.create();
-                        locationRequest.setInterval(10000);
-                        locationRequest.setFastestInterval(5000);
-                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                        mLocationCallback = new LocationCallback() {
+        FirestoreSettingsHelper.getRadius(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        int radius = ((Long) documentSnapshot.get("radius")).intValue();
+                        String type = "restaurant";
+                        keyword = ""; // obtaining the search from
+                        GoogleMapAPI googleMapAPI = APIClient.getClient().create(GoogleMapAPI.class);
+                        mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                             @Override
-                            public void onLocationResult(LocationResult locationResult) {
-                                super.onLocationResult(locationResult);
-                                if (locationResult == null) {
-                                    return;
+                            public void onComplete(@NonNull Task<Location> task) {
+                                if (task.isSuccessful()) {
+                                    Location mLastKnownLocation = task.getResult();
+                                    if (mLastKnownLocation != null) {
+                                        currentLocation = mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude();
+                                        googleMapAPI.getNearBy(currentLocation, radius*1000, type, keyword, key)
+                                                .enqueue(new Callback<PlacesResult>() {
+                                                    @Override
+                                                    public void onResponse(Call<PlacesResult> call, Response<PlacesResult> response) {
+                                                        if (response.isSuccessful()) {
+                                                            List<Result> results = response.body().getResults();
+                                                            nearBySearchResultsLiveData.setValue(results);
+                                                        } else {
+                                                            Log.e("TAG", "something went wrong");
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(Call<PlacesResult> call, Throwable t) {
+                                                        Log.e("TAG", "something went wrong");
+                                                    }
+                                                });
+                                    } else {
+                                        final LocationRequest locationRequest = LocationRequest.create();
+                                        locationRequest.setInterval(10000);
+                                        locationRequest.setFastestInterval(5000);
+                                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                                        mLocationCallback = new LocationCallback() {
+                                            @Override
+                                            public void onLocationResult(LocationResult locationResult) {
+                                                super.onLocationResult(locationResult);
+                                                if (locationResult == null) {
+                                                    return;
+                                                }
+                                                final Location mLastKnownLocation = locationResult.getLastLocation();
+                                                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                                                mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+                                            }
+                                        };
+                                        mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
+                                    }
                                 }
-                                final Location mLastKnownLocation = locationResult.getLastLocation();
-                                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                                mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
                             }
-                        };
-                        mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
+                        });
                     }
-                }
-            }
-        });
+                });
+
         return nearBySearchResultsLiveData;
     }
 
@@ -167,62 +181,70 @@ public class MapRepository {
     public MutableLiveData<Cursor> getAutocompleteCursor(FusedLocationProviderClient mFusedLocationProviderClient, String key, String query) {
         MutableLiveData<Cursor> cursorLiveData = new MutableLiveData<>();
         MatrixCursor cursor = new MatrixCursor(sAutocompleteColNames);
-        int radius = 5000;
-        String type = "establishment";
-        AutocompleteAPI autocompleteAPI = APIClient.getClient().create(AutocompleteAPI.class);
-        mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    Location mLastKnownLocation = task.getResult();
-                    if (mLastKnownLocation != null) {
-                        currentLocation = mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude();
-                        autocompleteAPI.getAutocomplete(currentLocation, radius, type, query, key)
-                                .enqueue(new Callback<AutocompleteResult>() {
-                                    @Override
-                                    public void onResponse(Call<AutocompleteResult> call, Response<AutocompleteResult> response) {
-                                        if (response.isSuccessful()) {
-                                            List<Prediction> predictions = response.body().getPredictions();
-                                            for (int i = 0; i < predictions.size(); i++) {
-                                                String prediction = predictions.get(i).getStructuredFormatting().getMainText();
-                                                Object[] row = new Object[]{i, prediction};
-                                                if (predictions.get(i).getTypes().contains("restaurant")) {
-                                                    cursor.addRow(row);
-                                                }
-                                            }
-                                            cursorLiveData.setValue(cursor);
-                                        } else {
-                                            Log.e("TAG", "something went wrong");
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<AutocompleteResult> call, Throwable t) {
-                                        Log.e("TAG", "something went wrong");
-                                    }
-                                });
-                    } else {
-                        final LocationRequest locationRequest = LocationRequest.create();
-                        locationRequest.setInterval(10000);
-                        locationRequest.setFastestInterval(5000);
-                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                        mLocationCallback = new LocationCallback() {
+        FirestoreSettingsHelper.getRadius(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        int radius = ((Long) documentSnapshot.get("radius")).intValue();
+                        String type = "establishment";
+                        AutocompleteAPI autocompleteAPI = APIClient.getClient().create(AutocompleteAPI.class);
+                        mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                             @Override
-                            public void onLocationResult(LocationResult locationResult) {
-                                super.onLocationResult(locationResult);
-                                if (locationResult == null) {
-                                    return;
+                            public void onComplete(@NonNull Task<Location> task) {
+                                if (task.isSuccessful()) {
+                                    Location mLastKnownLocation = task.getResult();
+                                    if (mLastKnownLocation != null) {
+                                        currentLocation = mLastKnownLocation.getLatitude() + "," + mLastKnownLocation.getLongitude();
+                                        autocompleteAPI.getAutocomplete(currentLocation, radius*1000, type, query, key)
+                                                .enqueue(new Callback<AutocompleteResult>() {
+                                                    @Override
+                                                    public void onResponse(Call<AutocompleteResult> call, Response<AutocompleteResult> response) {
+                                                        if (response.isSuccessful()) {
+                                                            List<Prediction> predictions = response.body().getPredictions();
+                                                            for (int i = 0; i < predictions.size(); i++) {
+                                                                String prediction = predictions.get(i).getStructuredFormatting().getMainText();
+                                                                Object[] row = new Object[]{i, prediction};
+                                                                if (predictions.get(i).getTypes().contains("restaurant")) {
+                                                                    cursor.addRow(row);
+                                                                }
+                                                            }
+                                                            cursorLiveData.setValue(cursor);
+                                                        } else {
+                                                            Log.e("TAG", "something went wrong");
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(Call<AutocompleteResult> call, Throwable t) {
+                                                        Log.e("TAG", "something went wrong");
+                                                    }
+                                                });
+                                    } else {
+                                        final LocationRequest locationRequest = LocationRequest.create();
+                                        locationRequest.setInterval(10000);
+                                        locationRequest.setFastestInterval(5000);
+                                        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                                        mLocationCallback = new LocationCallback() {
+                                            @Override
+                                            public void onLocationResult(LocationResult locationResult) {
+                                                super.onLocationResult(locationResult);
+                                                if (locationResult == null) {
+                                                    return;
+                                                }
+                                                final Location mLastKnownLocation = locationResult.getLastLocation();
+                                                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                                                mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+                                            }
+                                        };
+                                        mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
+                                    }
                                 }
-                                final Location mLastKnownLocation = locationResult.getLastLocation();
-                                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                                mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
                             }
-                        };
-                        mFusedLocationProviderClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
+                        });
+
                     }
-                }
-            }
-        });
+                });
+
         return cursorLiveData;
     }
 
@@ -309,6 +331,41 @@ public class MapRepository {
             }
         });
         return websiteLiveData;
+    }
+
+    public LiveData<Boolean> isRestaurantInLunchplaces(String restaurantId){
+        MutableLiveData<Boolean> _isRestaurantInLunchplaces = new MutableLiveData<>();
+        FirestoreLunchplaceHelper.getLunchPlacesCollection()
+                .whereEqualTo("resultId", restaurantId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && !task.getResult().isEmpty()){
+                    _isRestaurantInLunchplaces.postValue(true);
+                } else if (task.isSuccessful() && task.getResult().isEmpty()){
+                    _isRestaurantInLunchplaces.postValue(false);
+                } else {
+                    Log.d("TAG", task.getException().getMessage());
+                }
+            }
+        });
+        return _isRestaurantInLunchplaces;
+    }
+
+    public LiveData<Integer> getNumberOfWorkmates(String restaurantId){
+        MutableLiveData<Integer> _numberOfWorkmates = new MutableLiveData<>();
+        FirestoreLunchplaceHelper.getLunchPlacesCollection().whereEqualTo("resultId", restaurantId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    _numberOfWorkmates.postValue(task.getResult().size());
+                } else {
+                    Log.d("TAG", task.getException().getMessage());
+                }
+            }
+        });
+        return _numberOfWorkmates;
     }
 }
 

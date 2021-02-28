@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +41,7 @@ import com.dija.go4lunch.databinding.HeaderBinding;
 import com.dija.go4lunch.injections.Injection;
 import com.dija.go4lunch.injections.MapViewModelFactory;
 import com.dija.go4lunch.injections.UserViewModelFactory;
+import com.dija.go4lunch.models.nearbyAPImodels.Result;
 import com.dija.go4lunch.viewmodel.MapViewModel;
 import com.dija.go4lunch.viewmodel.UserViewModel;
 import com.firebase.ui.auth.AuthUI;
@@ -104,6 +106,12 @@ public class MainActivity2 extends AppCompatActivity {
                                 @Override
                                 public void onChanged(Cursor cursor) {
                                     searchView.getSuggestionsAdapter().changeCursor(cursor);
+                                    searchView.setOnSearchClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+
+                                        }
+                                    });
                                 }
                             });
                 return true;
@@ -121,6 +129,12 @@ public class MainActivity2 extends AppCompatActivity {
         updateName(headerBinding.headerName);
         updateEmail(headerBinding.headerEmail);
 
+        //navigating to the lunch fragment chosen by the user
+        binding.navigationView.getMenu().findItem(R.id.navigation_lunch).setOnMenuItemClickListener(MenuItem -> {
+           navigateToLunch();
+           return true;
+        });
+
         // signing out
         binding.navigationView.getMenu().findItem(R.id.menu_logout).setOnMenuItemClickListener(MenuItem -> {
             logout();
@@ -134,6 +148,7 @@ public class MainActivity2 extends AppCompatActivity {
             binding.navigationLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            getSupportFragmentManager().popBackStack();
         }
     }
 //region ACTIONS
@@ -233,7 +248,7 @@ public class MainActivity2 extends AppCompatActivity {
     private void logout() {
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("Log out");
-        alertDialog.setMessage("Do you want to log out ?");
+        alertDialog.setMessage("Do you want to logout ?");
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "No",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -262,9 +277,30 @@ public class MainActivity2 extends AppCompatActivity {
                     startActivity(mainActivity);
                 }
 
-//endregion
+
 
             }
         };
     }
+
+    private void navigateToLunch(){
+        Result result = mUserViewModel.retrieveUsersLunchplace(this);
+        if (result instanceof Result) {
+            binding.navigationLayout.closeDrawer(GravityCompat.START);
+            getSupportFragmentManager().popBackStack();
+            RestaurantDetailFragment restaurantDetailFragment = new RestaurantDetailFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, restaurantDetailFragment)
+                    .commitAllowingStateLoss();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("result", result);
+            restaurantDetailFragment.setArguments(bundle);
+
+        } else {
+            Toast.makeText(this, "You haven't registered your lunch yet", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    //endregion
 }

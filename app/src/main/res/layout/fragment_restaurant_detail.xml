@@ -46,11 +46,13 @@
             app:layout_constraintBottom_toBottomOf="@id/restaurant_detail_title"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/restaurant_check_picture"
-            android:background="@drawable/orange_check_circle"
+            android:src="@drawable/white_check"
+            android:tint="@color/white"
+            app:tint="@color/white"
             android:contentDescription="@string/going"
             app:layout_constraintBottom_toBottomOf="@id/restaurant_white_circle"
             app:layout_constraintTop_toTopOf="@id/restaurant_white_circle"
@@ -78,6 +80,24 @@
             android:contentDescription="@string/restaurant_note"
             app:layout_constraintBottom_toBottomOf="@id/restaurant_detail_title"
             app:layout_constraintStart_toEndOf="@id/restaurant_detail_title" />
+
+        <ImageView
+            android:id="@+id/star_score2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_star_rate_24"
+            android:contentDescription="@string/restaurant_note"
+            app:layout_constraintBottom_toBottomOf="@id/restaurant_detail_title"
+            app:layout_constraintStart_toEndOf="@id/star_score1" />
+
+        <ImageView
+            android:id="@+id/star_score3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_star_rate_24"
+            android:contentDescription="@string/restaurant_note"
+            app:layout_constraintBottom_toBottomOf="@id/restaurant_detail_title"
+            app:layout_constraintStart_toEndOf="@id/star_score2" />
 
         <TextView
             android:layout_width="wrap_content"

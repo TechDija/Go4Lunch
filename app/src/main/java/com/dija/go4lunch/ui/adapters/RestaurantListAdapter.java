@@ -6,23 +6,29 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.dija.go4lunch.R;
 import com.dija.go4lunch.databinding.RestaurantItemBinding;
 import com.dija.go4lunch.models.nearbyAPImodels.Result;
+import com.dija.go4lunch.viewmodel.MapViewModel;
 
 import java.util.List;
+import java.util.Observable;
 
 public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAdapter.RestaurantViewHolder> {
 
     private List<Result> mResults;
     private Location lastKnownLocation;
+    private MapViewModel mMapViewModel;
 
-    public RestaurantListAdapter(List<Result> mResults, Location lastKnownLocation) {
+    public RestaurantListAdapter(List<Result> mResults, Location lastKnownLocation, MapViewModel mMapViewModel) {
         this.mResults = mResults;
         this.lastKnownLocation = lastKnownLocation;
+        this.mMapViewModel = mMapViewModel;
     }
 
 
@@ -31,7 +37,8 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
     public RestaurantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutinflater = LayoutInflater.from(parent.getContext());
         RestaurantItemBinding itemBinding = RestaurantItemBinding.inflate(layoutinflater, parent, false);
-        return new RestaurantListAdapter.RestaurantViewHolder(itemBinding);
+        RestaurantViewHolder holder = new RestaurantListAdapter.RestaurantViewHolder(itemBinding);
+        return holder;
     }
 
     @Override
@@ -66,11 +73,7 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
             } else {
                 itemBinding.restaurantOpenUntil.setText("currently closed");
             }
-            if (result.getRating() == null || result.getRating() < 2.0) {
-                itemBinding.restaurantStars.setVisibility(View.GONE);
-            } else {
-                itemBinding.restaurantStars.setVisibility(View.VISIBLE);
-            }
+
             //restaurant picture
             if (result.getPhotos().size() == 1) {
                 String baseUrlPhoto = "https://maps.googleapis.com/maps/api/place/photo";
@@ -96,7 +99,28 @@ public class RestaurantListAdapter extends RecyclerView.Adapter<RestaurantListAd
 
                 itemBinding.restaurantDistance.setText(distance + "m");
             }
+
+            //number of colleagues
+            mMapViewModel.getNumberOfWorkmates(result.getPlaceId()).observe((LifecycleOwner)itemView.getContext(), new Observer<Integer>() {
+                @Override
+                public void onChanged(Integer integer) {
+                    itemBinding.personOutlinedText.setText("(" + integer + ")");
+                }
+            });
+
+            // number of stars
+            if (result.getRating() != null && result.getRating() < 3.0f){
+                itemBinding.restaurantStar2.setVisibility(View.INVISIBLE);
+                itemBinding.restaurantStar3.setVisibility(View.INVISIBLE);
+            } else if (result.getRating() != null && result.getRating() < 4.2f && result.getRating() >= 3.0f){
+                itemBinding.restaurantStar3.setVisibility(View.INVISIBLE);
+            } else if (result.getRating() == null){
+                itemBinding.restaurantStar1.setVisibility(View.INVISIBLE);
+                itemBinding.restaurantStar2.setVisibility(View.INVISIBLE);
+                itemBinding.restaurantStar3.setVisibility(View.INVISIBLE);
+            }
         }
+
         //TODO: the calculation of ratings & the number of colleagues who go there eating
 
     }

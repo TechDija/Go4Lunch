@@ -52,9 +52,7 @@ public class RestaurantListFragment extends BaseFragment<FragmentRestaurantListB
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
         configureMapViewModel();
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
         initializeLastKnownLocation();
-        //configureRecyclerView();
         configureOnClickRecyclerView();
         super.onViewCreated(view, savedInstanceState);
         binding.progressBar.setVisibility(View.GONE);
@@ -70,7 +68,7 @@ public class RestaurantListFragment extends BaseFragment<FragmentRestaurantListB
                 .getString(R.string.google_api_key)).observe(getViewLifecycleOwner(), new Observer<List<Result>>() {
             @Override
             public void onChanged(List<Result> results) {
-                mAdapter = new RestaurantListAdapter(results, lastKnownLocation);
+                mAdapter = new RestaurantListAdapter(results, lastKnownLocation, mMapViewModel);
                 binding.restaurantList.setAdapter(mAdapter);
                 binding.restaurantList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
             }
